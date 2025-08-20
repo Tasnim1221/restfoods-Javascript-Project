@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foods using Vanilla JS</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            height: 100vh;
+            margin: 0;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-10 {
+            margin-bottom: 10px;
+        }
+
+        .result-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            margin: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .img-fluid {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        #loadMoreBtn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body class="">
+    <div class="main-container">
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <h1 class="">🌍 Foods of the World</h1>
+            <p id="totalCount">Loading total foods...</p>
+        </div>
+
+        <div class="result-container" id="result-container">
+        </div>
+
+        <div style="margin-bottom: 20px; text-align: center;">
+            <button id="loadMoreBtn">Load More</button>
+        </div>
+    </div>
+
+    <script>
+        const API = 'https://www.themealdb.com/api/json/v1/1/categories.php';
+        const resultContainer = document.getElementById('result-container');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const totalCountEl = document.getElementById('totalCount');
+        let categories = [];
+        let currentIndex = 0;
+        const PAGE_SIZE = 8;
+
+        fetch(API)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                totalCountEl.textContent = `Total categories: ${data.length}`;
+                categories = data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+                showNextBatch();
+                loadMoreBtn.classList.remove('hidden');
+            })
+            .catch(err => {
+                resultContainer.innerHTML = `<div class="text-red-500">Error: ${err.message}</div>`;
+            });
+
+        function showNextBatch() {
+            const nextBatch = categories.slice(currentIndex, currentIndex + PAGE_SIZE);
+            nextBatch.forEach(categories => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.innerHTML = `
+                    <img src= "${categories.strCategoryThumb}" alt="${categories.name.common}" class="img-fluid"> 
+                    <h3>${categories.strCategory}</h3>
+                    <p><strong>Official:</strong> ${categories.strCategoryDescription}</p>
+                    `;
+                resultContainer.appendChild(card);
+            })
+            currentIndex += PAGE_SIZE;
+
+            if (currentIndex >= categories.length) {
+                loadMoreBtn.classList.add('hidden');
+            }
+        }
+
+        loadMoreBtn.addEventListener('click', function () {
+            if (currentIndex < categories.length) {
+                showNextBatch();
+            }
+        });
+    </script>
+    <!-- <script>
+        const API = 'https://restcountries.com/v3.1/all?fields=name,flags';
+        const resultContainer = document.getElementById('result-container');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const totalCountEl = document.getElementById('totalCount');
+        let countries = [];
+        let currentIndex = 0;
+        const PAGE_SIZE = 8;
+        fetch(API)
+            .then(res => res.json())
+            .then(data => {
+                totalCountEl.textContent = `Total Countries: ${data.length}`;
+                countries = data.slice(currentIndex, currentIndex + PAGE_SIZE);
+                countries.forEach(country => {
+                    const card = document.createElement('div');
+                    card.classList.add('card');
+                    card.innerHTML = `
+                    <img src= "${country.flags.svg}" alt="${country.name.common}" class="img-fluid"> 
+                    <h3>${country.name.common}</h3>
+                    <p><strong>Official:</strong> ${country.name.official}</p>
+                    `;
+                    resultContainer.appendChild(card);
+                })
+                
+
+                currentIndex += PAGE_SIZE;
+                if (currentIndex >= countries.length) {
+                    loadMoreBtn.classList.add('hidden');
+                }
+
+                loadMoreBtn.addEventListener('click', () => {
+                    countries = data.slice(currentIndex, currentIndex + PAGE_SIZE);
+                    countries.forEach(country => {
+                        const card = document.createElement('div');
+                        card.classList.add('card');
+                        card.innerHTML = `
+                        <img src= "${country.flags.svg}" alt="${country.name.common}" class="img-fluid"> 
+                        <h3>${country.name.common}</h3>
+                        <p><strong>Official:</strong> ${country.name.official}</p>
+                        `;
+                        resultContainer.appendChild(card);
+                    })
+                    currentIndex += PAGE_SIZE;
+                    if (currentIndex >= countries.length) {
+                        loadMoreBtn.classList.add('hidden');
+                    }
+                });
+            })
+            .catch(err => {
+                resultContainer.innerHTML = `<div class="text-red-500">Error: ${err.message}</div>`;
+            });
+    </script> -->
+</body>
+
+</html>

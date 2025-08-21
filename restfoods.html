@@ -64,7 +64,7 @@
 </head>
 
 <body class="">
-    <div class="main-container">
+    <div class="main-category">
         <!-- Header -->
         <div class="text-center mb-10">
             <h1 class="">🌍 Foods of the World</h1>
@@ -86,30 +86,31 @@
         const totalCountEl = document.getElementById('totalCount');
         let categories = [];
         let currentIndex = 0;
-        const PAGE_SIZE = 8;
+        const PAGE_SIZE = 4;
 
         fetch(API)
             .then(res => res.json())
             .then(data => {
-                console.log(data);
-                totalCountEl.textContent = `Total categories: ${data.length}`;
-                categories = data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+                categories = data.categories || [];
+                totalCountEl.textContent = `Total Categories: ${categories.length}`;
                 showNextBatch();
-                loadMoreBtn.classList.remove('hidden');
+                if (categories.length > PAGE_SIZE) {
+          loadMoreBtn.classList.remove('hidden');
+        }
             })
             .catch(err => {
-                resultContainer.innerHTML = `<div class="text-red-500">Error: ${err.message}</div>`;
+                resultContainer.innerHTML = `<div style="color:red">Error: ${err.message}</div>`;
             });
 
         function showNextBatch() {
             const nextBatch = categories.slice(currentIndex, currentIndex + PAGE_SIZE);
-            nextBatch.forEach(categories => {
+            nextBatch.forEach(category => {
                 const card = document.createElement('div');
                 card.classList.add('card');
                 card.innerHTML = `
-                    <img src= "${categories.strCategoryThumb}" alt="${categories.name.common}" class="img-fluid"> 
-                    <h3>${categories.strCategory}</h3>
-                    <p><strong>Official:</strong> ${categories.strCategoryDescription}</p>
+                    <img src= "${category.strCategoryThumb}" alt="${category.strCategory}" class="img-fluid"> 
+                    <h3>${category.strCategory}</h3>
+                    <p>${category.strCategoryDescription.substring(0, 100)}...</p>
                     `;
                 resultContainer.appendChild(card);
             })
